@@ -30,5 +30,10 @@ const CategoryDAO = {
     const result = await Models.Category.findByIdAndDelete(_id);
     return result;
   },
+  // Mới: Lấy Category theo ID
+  async selectByID(_id) {
+    const category = await Models.Category.findById(_id).exec();
+    return category;
+  }
 };
 module.exports = CategoryDAO;

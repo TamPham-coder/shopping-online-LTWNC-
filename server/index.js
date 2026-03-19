@@ -22,8 +22,11 @@ app.get('/shoppingonline', (req, res) => {
 const adminRouter = require('./api/admin');
 app.use('/api/admin', adminRouter);
 
-// Kết nối MongoDB (giả sử bạn đã có phần này ở file khác)
-require('./utils/MongooseUtil');  // nếu dùng file riêng
+// apis
+app.use('/api/customer', require('./api/customer.js'));
+
+// Kết nối MongoDB
+require('./utils/MongooseUtil');
 
 // Khởi động server
 const PORT = process.env.PORT || 3000;
