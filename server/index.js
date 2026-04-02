@@ -28,7 +28,28 @@ app.use('/api/customer', require('./api/customer.js'));
 // Kết nối MongoDB
 require('./utils/MongooseUtil');
 
-// Khởi động server
+// ================= DEPLOYMENT =================
+const path = require('path');
+
+// admin static
+app.use('/admin', express.static(path.resolve(__dirname, '../client-admin/build')));
+
+// ❌ bỏ app.get('/admin/*')
+// ✅ dùng fallback này
+app.use('/admin', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client-admin/build/index.html'));
+});
+
+// customer static
+app.use('/', express.static(path.resolve(__dirname, '../client-customer/build')));
+
+// ❌ bỏ app.get('*')
+// ✅ dùng fallback này
+app.use((req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client-customer/build/index.html'));
+});
+
+// ================= START SERVER =================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

@@ -1,82 +1,136 @@
 import axios from 'axios';
-import React,{Component} from 'react';
+import React, { Component } from 'react';
 import withRouter from '../utils/withRouter';
+import MyContext from '../contexts/MyContext';
 
-class ProductDetail extends Component{
-constructor(props){
-super(props);
-this.state={
-product:null
-};
-}
+class ProductDetail extends Component {
+  static contextType = MyContext;
 
-render(){
-const prod=this.state.product;
-if(prod!=null){
-return(
-<div className="align-center">
-<h2 className="text-center">PRODUCT DETAILS</h2>
-<figure className="caption-right">
-<img src={"data:image/jpg;base64,"+prod.image} width="400px" height="400px" alt=""/>
-<figcaption>
-<form>
-<table>
-<tbody>
+  constructor(props) {
+    super(props);
+    this.state = {
+      product: null,
+      txtQuantity: 1
+    };
+  }
 
-<tr>
-<td align="right">ID :</td>
-<td>{prod._id}</td>
-</tr>
+  render() {
+    const prod = this.state.product;
 
-<tr>
-<td align="right">Name :</td>
-<td>{prod.name}</td>
-</tr>
+    if (prod != null) {
+      return (
+        <div className="align-center">
+          <h2 className="text-center">PRODUCT DETAILS</h2>
+          <figure className="caption-right">
+            <img
+              src={'data:image/jpg;base64,' + prod.image}
+              width="400px"
+              height="400px"
+              alt=""
+            />
+            <figcaption>
+              <form>
+                <table>
+                  <tbody>
 
-<tr>
-<td align="right">Price :</td>
-<td>{prod.price}</td>
-</tr>
+                    <tr>
+                      <td align="right">ID :</td>
+                      <td>{prod._id}</td>
+                    </tr>
 
-<tr>
-<td align="right">Category :</td>
-<td>{prod.category.name}</td>
-</tr>
+                    <tr>
+                      <td align="right">Name :</td>
+                      <td>{prod.name}</td>
+                    </tr>
 
-<tr>
-<td align="right">Quantity :</td>
-<td><input type="number" min="1" max="99"/></td>
-</tr>
+                    <tr>
+                      <td align="right">Price :</td>
+                      <td>{prod.price}</td>
+                    </tr>
 
-<tr>
-<td></td>
-<td><input type="submit" value="ADD TO CART"/></td>
-</tr>
+                    <tr>
+                      <td align="right">Category :</td>
+                      <td>{prod.category.name}</td>
+                    </tr>
 
-</tbody>
-</table>
-</form>
-</figcaption>
-</figure>
-</div>
-);
-}
+                    <tr>
+                      <td align="right">Quantity :</td>
+                      <td>
+                        <input
+                          type="number"
+                          min="1"
+                          max="99"
+                          value={this.state.txtQuantity}
+                          onChange={(e) => {
+                            this.setState({ txtQuantity: e.target.value });
+                          }}
+                        />
+                      </td>
+                    </tr>
 
-return(<div/>);
-}
+                    <tr>
+                      <td></td>
+                      <td>
+                        <input
+                          type="submit"
+                          value="ADD TO CART"
+                          onClick={(e) => this.btnAdd2CartClick(e)}
+                        />
+                      </td>
+                    </tr>
 
-componentDidMount(){
-const params=this.props.params;
-this.apiGetProduct(params.id);
-}
+                  </tbody>
+                </table>
+              </form>
+            </figcaption>
+          </figure>
+        </div>
+      );
+    }
 
-// apis
-apiGetProduct(id){
-axios.get('http://localhost:3000/api/customer/products/'+id).then((res)=>{
-const result=res.data;
-this.setState({product:result});
-});
-}
+    return <div />;
+  }
+
+  componentDidMount() {
+    const params = this.props.params;
+    this.apiGetProduct(params.id);
+  }
+
+  // apis
+  apiGetProduct(id) {
+    axios
+      .get('http://localhost:3000/api/customer/products/' + id)
+      .then((res) => {
+        const result = res.data;
+        this.setState({ product: result });
+      });
+  }
+
+  // event-handlers
+  btnAdd2CartClick(e) {
+    e.preventDefault();
+    const product = this.state.product;
+    const quantity = parseInt(this.state.txtQuantity);
+
+    if (quantity) {
+      const mycart = this.context.mycart;
+      const index = mycart.findIndex(
+        (x) => x.product._id === product._id
+      );
+
+      if (index === -1) {
+        const newItem = { product: product, quantity: quantity };
+        mycart.push(newItem);
+      } else {
+        mycart[index].quantity += quantity;
+      }
+
+      this.context.setMycart(mycart);
+      alert('OK BABY!');
+    } else {
+      alert('Please input quantity');
+    }
+  }
 }
 
 export default withRouter(ProductDetail);
